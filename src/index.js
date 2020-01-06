@@ -1,5 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import SeasonDisplay from "./SeasonDisplay"
+import Spinner from "./Spinner"
 
 class App extends React.Component{
     constructor(props){
@@ -7,23 +9,29 @@ class App extends React.Component{
 
         // THIS IS THE ONLY TIME we do direct assignment
         // to do this.state 
-        this.state={lat: null}
-
-        window.navigator.geolocation.getCurrentPosition(
-            position => {
-                // we called setstate!!!
-                this.setState({ lat :position.coords.latitude })
-
-
-            },
-            err => console.log(err)
-        );
+        this.state={lat: null, errorMessage:''}
     }
     
+    componentDidMount(){
+        window.navigator.geolocation.getCurrentPosition(
+            position => this.setState({ lat :position.coords.latitude }),
+            err => this.setState({errorMessage: err.message})
+        );
+    }
+
     // React says we have to define render!!
     render(){
-        return <div> latitude: {this.state.lat}</div>
-    }
+            if (this.state.errorMessage && !this.state.lat){
+                    return <div>Error: {this.state.errorMessage}</div>
+            }
+
+            if(!this.state.errorMessage && this.state.lat){
+                return <SeasonDisplay lat="this.state.lat"/>
+            }
+            
+            return <Spinner />    
+            }
+
 }
 
 ReactDOM.render(
